@@ -18,100 +18,137 @@
     ?response ; Return variable "response"
 )
 
-(deftemplate Symptom
-    (slot symptomType
-        (type SYMBOL)
-        (allowed-symbols HBsAg antiHDV antiHBc antiHBs IgMantiHBc)
-    )
-)
-
-(deftemplate Hepatitis
-    (slot hepatitisType
-        (type SYMBOL)
-        (allowed-symbols acuteInfection chronicInfection hepatitisBPlusD cured vaccinated unclear healthy)
-    )
-)
-
-(deftemplate Diagnosis
-    (slot hepatitisType
-        (type SYMBOL)
-        (allowed-symbols acuteInfection chronicInfection hepatitisBPlusD cured vaccinated unclear healthy)
-    )
-    (multislot hepatitisSymptoms
-        (type SYMBOL)
-        (allowed-symbols HBsAg antiHDV antiHBc antiHBs IgMantiHBc)
-    )
-)
-
-(deffacts SymptomDiagnosis
-    (Diagnosis (hepatitisType acuteInfection) (hepatitisSymptoms HBsAg antiHBc IgMantiHBc))
-    (Diagnosis (hepatitisType chronicInfection) (hepatitisSymptoms HBsAg antiHBc))
-    (Diagnosis (hepatitisType hepatitisBPlusD) (hepatitisSymptoms HBsAg antiHDV))
-    (Diagnosis (hepatitisType cured) (hepatitisSymptoms antiHBs antiHBc))
-    (Diagnosis (hepatitisType vaccinated) (hepatitisSymptoms antiHBs))
-    (Diagnosis (hepatitisType unclear) (hepatitisSymptoms antiHBc))
-    (Diagnosis (hepatitisType healthy) (hepatitisSymptoms))
-)
-
 (defrule GetHBsAg
-    (declare (salience 1))
+    (not (HBsAg ?))
     =>
     (bind ?response (PositiveOrNegative "HBsAg? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType HBsAg))))
+    (assert (HBsAg ?response))
 )
 
 (defrule GetAntiHDV
-    (Symptom (symptomType HBsAg))
+    (HBsAg positive)
+    (not (antiHDV ?))
     =>
     (bind ?response (PositiveOrNegative "anti-HDV? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType antiHDV))))
+    (assert (antiHDV ?response))
 )
 
 (defrule GetAntiHBc1
-    (Symptom (symptomType HBsAg))
-    (not (Symptom (symptomType antiHDV)))
+    (HBsAg positive)
+    (antiHDV negative)
+    (not (antiHBc ?))
     =>
     (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType antiHBc))))
+    (assert (antiHBc ?response))
 )
 
 (defrule GetAntiHBs1
-    (Symptom (symptomType HBsAg))
-    (not (Symptom (symptomType antiHDV)))
-    (Symptom (symptomType antiHBc))
+    (HBsAg positive)
+    (antiHDV negative)
+    (antiHBc positive)
+    (not (antiHBs ?))
     =>
     (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType antiHBs))))
+    (assert (antiHBs ?response))
 )
 
 (defrule GetIgMantiHBc
-    (Symptom (symptomType HBsAg))
-    (not (Symptom (symptomType antiHDV)))
-    (Symptom (symptomType antiHBc))
-    (not (Symptom (symptomType antiHBs)))
+    (HBsAg positive)
+    (antiHDV negative)
+    (antiHBc positive)
+    (antiHBs negative)
+    (not (IgMantiHBc ?))
     =>
     (bind ?response (PositiveOrNegative "IgM anti-HBc? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType IgMantiHBc))))
+    (assert (IgMantiHBc ?response))
 )
 
 (defrule GetAntiHBs2
-    (not (Symptom (symptomType HBsAg)))
+    (HBsAg negative)
+    (not (antiHBs ?))
     =>
     (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType antiHBs))))
+    (assert (antiHBs ?response))
 )
 
 (defrule GetAntiHBc2
-    (not (Symptom (symptomType HBsAg)))
+    (HBsAg negative)
+    (antiHBs ?)
+    (not (antiHBc ?))
     =>
     (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
-    (if (eq ?response positive) then (assert (Symptom (symptomType antiHBc))))
+    (assert (antiHBc ?response))
 )
 
-(defrule DiagnoseSymptoms
-    (Diagnosis (hepatitisType ?type))
-    (forall (Diagnosis (hepatitisType ?type) (hepatitisSymptoms $? ?symptom $?)) (Symptom (symptomType ?symptom)))
+(defrule IsAcuteInfection
+    (HBsAg positive)
+    (antiHDV negative)
+    (antiHBc positive)
+    (antiHBs negative)
+    (IgMantiHBc positive)
     =>
-    (assert (Hepatitis (hepatitisType ?type)))
-    (assert (DisplayDiagnosis))
+    (printout t "Hasil Prediksi = Acute Infection" crlf)
+    (assert (certain))
+)
+
+(defrule IsChronicInfection
+    (HBsAg positive)
+    (antiHDV negative)
+    (antiHBc positive)
+    (antiHBs negative)
+    (IgMantiHBc negative)
+    =>
+    (printout t "Hasil Prediksi = Chronic Infection" crlf)
+    (assert (certain))
+)
+
+(defrule IsHepatitisBPlusD
+    (HBsAg positive)
+    (antiHDV positive)
+    =>
+    (printout t "Hasil Prediksi = Hepatitis B + D" crlf)
+    (assert (certain))
+)
+
+(defrule IsCured
+    (HBsAg negative)
+    (antiHBs positive)
+    (antiHBc positive)
+    =>
+    (printout t "Hasil Prediksi = Cured" crlf)
+    (assert (certain))
+)
+
+(defrule IsVaccinated
+    (HBsAg negative)
+    (antiHBs positive)
+    (antiHBc negative)
+    =>
+    (printout t "Hasil Prediksi = Vaccinated" crlf)
+    (assert (certain))
+)
+
+(defrule IsUnclear
+    (HBsAg negative)
+    (antiHBs negative)
+    (antiHBc positive)
+    =>
+    (printout t "Hasil Prediksi = Unclear (possible resolved)" crlf)
+    (assert (certain))
+)
+
+(defrule IsHealthy
+    (HBsAg negative)
+    (antiHBs negative)
+    (antiHBc negative)
+    =>
+    (printout t "Hasil Prediksi = Healthy, not vaccinated, or suspicious" crlf)
+    (assert (certain))
+)
+
+(defrule IsUncertain
+    (declare (salience -1))
+    (not (certain))
+    =>
+    (printout t "Hasil Prediksi = Uncertain Configuration" crlf)
 )
