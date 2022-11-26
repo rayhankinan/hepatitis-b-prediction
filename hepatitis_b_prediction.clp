@@ -1,21 +1,21 @@
 (deffunction ProposeQuestion (?question)
-    (printout t ?question) ; Print question
-    (bind ?answer (read)) ; Read from user and bind it to variable "answer"
-    (if (lexemep ?answer) then (bind ?answer (lowcase ?answer))) ; Lowercase all characters in variable "answer"
+    (printout t ?question)
+    (bind ?answer (read))
+    (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
 
-    (while (not (or (eq ?answer positive) (eq ?answer negative))) do ; While the input not in variable "allowed_values"
-        (printout t ?question) ; Print question
-        (bind ?answer (read)) ; Read from input and bind it to variable "answer"
-        (if (lexemep ?answer) then (bind ?answer (lowcase ?answer))) ; Lowercase all characters in variable "answer"
+    (while (not (or (eq ?answer positive) (eq ?answer negative))) do
+        (printout t ?question)
+        (bind ?answer (read))
+        (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
     )
 
-    ?answer ; Return variable "answer"
+    ?answer
 )
 
 (deffunction PositiveOrNegative (?question)
-    (bind ?response (ProposeQuestion ?question)) ; Call function "ProposeQuestion" with the question parameter from input and the allowed_values consists of positive and negative SYMBOL
+    (bind ?response (ProposeQuestion ?question))
 
-    ?response ; Return variable "response"
+    ?response
 )
 
 (defrule GetHBsAg
