@@ -18,131 +18,151 @@
     ?response
 )
 
+(deftemplate Symptom
+    (slot name
+        (type SYMBOL)
+        (allowed-values HBsAg antiHDV antiHBc antiHBs IgMantiHBc)
+    )
+    (slot diagnosis
+        (type SYMBOL)
+        (allowed-values undiagnosed negative positive)
+        (default undiagnosed)
+    )
+)
+
+(deffacts InitialSymptoms
+    (Symptom (name HBsAg))
+    (Symptom (name antiHDV))
+    (Symptom (name antiHBc))
+    (Symptom (name antiHBs))
+    (Symptom (name IgMantiHBc))
+)
+
 (defrule GetHBsAg
-    (not (HBsAg ?))
+    (Symptom (name HBsAg) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "HBsAg? [positive/negative] "))
-    (assert (HBsAg ?response))
+    (assert (Symptom (name HBsAg) (diagnosis ?response)))
 )
 
 (defrule GetAntiHDV
-    (HBsAg positive)
-    (not (antiHDV ?))
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "anti-HDV? [positive/negative] "))
-    (assert (antiHDV ?response))
+    (assert (Symptom (name antiHDV) (diagnosis ?response)))
 )
 
 (defrule GetAntiHBc1
-    (HBsAg positive)
-    (antiHDV negative)
-    (not (antiHBc ?))
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
-    (assert (antiHBc ?response))
+    (assert (Symptom (name antiHBc) (diagnosis ?response)))
 )
 
 (defrule GetAntiHBs1
-    (HBsAg positive)
-    (antiHDV negative)
-    (antiHBc positive)
-    (not (antiHBs ?))
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis positive))
+    (Symptom (name antiHBs) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
-    (assert (antiHBs ?response))
+    (assert (Symptom (name antiHBs) (diagnosis ?response)))
 )
 
 (defrule GetIgMantiHBc
-    (HBsAg positive)
-    (antiHDV negative)
-    (antiHBc positive)
-    (antiHBs negative)
-    (not (IgMantiHBc ?))
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis positive))
+    (Symptom (name antiHBs) (diagnosis negative))
+    (Symptom (name IgMantiHBc) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "IgM anti-HBc? [positive/negative] "))
-    (assert (IgMantiHBc ?response))
+    (assert (Symptom (name IgMantiHBc) (diagnosis ?response)))
 )
 
 (defrule GetAntiHBs2
-    (HBsAg negative)
-    (not (antiHBs ?))
+    (Symptom (name HBsAg) (diagnosis negative))
+    (Symptom (name antiHBs) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
-    (assert (antiHBs ?response))
+    (assert (Symptom (name antiHBs) (diagnosis ?response)))
 )
 
 (defrule GetAntiHBc2
-    (HBsAg negative)
-    (antiHBs ?)
-    (not (antiHBc ?))
+    (Symptom (name HBsAg) (diagnosis negative))
+    (or (Symptom (name antiHBs) (diagnosis negative)) (Symptom (name antiHBs) (diagnosis positive)))
+    (Symptom (name antiHBc) (diagnosis undiagnosed))
     =>
     (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
-    (assert (antiHBc ?response))
+    (assert (Symptom (name antiHBc) (diagnosis ?response)))
 )
 
 (defrule IsAcuteInfection
-    (HBsAg positive)
-    (antiHDV negative)
-    (antiHBc positive)
-    (antiHBs negative)
-    (IgMantiHBc positive)
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis positive))
+    (Symptom (name antiHBs) (diagnosis negative))
+    (Symptom (name IgMantiHBc) (diagnosis positive))
     =>
     (printout t "Hasil Prediksi = Acute Infection" crlf)
     (assert (certain))
 )
 
 (defrule IsChronicInfection
-    (HBsAg positive)
-    (antiHDV negative)
-    (antiHBc positive)
-    (antiHBs negative)
-    (IgMantiHBc negative)
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis positive))
+    (Symptom (name antiHBs) (diagnosis negative))
+    (Symptom (name IgMantiHBc) (diagnosis negative))
     =>
     (printout t "Hasil Prediksi = Chronic Infection" crlf)
     (assert (certain))
 )
 
 (defrule IsHepatitisBPlusD
-    (HBsAg positive)
-    (antiHDV positive)
+    (Symptom (name HBsAg) (diagnosis positive))
+    (Symptom (name antiHDV) (diagnosis positive))
     =>
     (printout t "Hasil Prediksi = Hepatitis B + D" crlf)
     (assert (certain))
 )
 
 (defrule IsCured
-    (HBsAg negative)
-    (antiHBs positive)
-    (antiHBc positive)
+    (Symptom (name HBsAg) (diagnosis negative))
+    (Symptom (name antiHBs) (diagnosis positive))
+    (Symptom (name antiHBc) (diagnosis positive))
     =>
     (printout t "Hasil Prediksi = Cured" crlf)
     (assert (certain))
 )
 
 (defrule IsVaccinated
-    (HBsAg negative)
-    (antiHBs positive)
-    (antiHBc negative)
+    (Symptom (name HBsAg) (diagnosis negative))
+    (Symptom (name antiHBs) (diagnosis positive))
+    (Symptom (name antiHBc) (diagnosis negative))
     =>
     (printout t "Hasil Prediksi = Vaccinated" crlf)
     (assert (certain))
 )
 
 (defrule IsUnclear
-    (HBsAg negative)
-    (antiHBs negative)
-    (antiHBc positive)
+    (Symptom (name HBsAg) (diagnosis negative))
+    (Symptom (name antiHBs) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis positive))
     =>
-    (printout t "Hasil Prediksi = Unclear (possible resolved)" crlf)
+    (printout t "Hasil Prediksi = Unclear (Possible Resolved)" crlf)
     (assert (certain))
 )
 
 (defrule IsHealthy
-    (HBsAg negative)
-    (antiHBs negative)
-    (antiHBc negative)
+    (Symptom (name HBsAg) (diagnosis negative))
+    (Symptom (name antiHBs) (diagnosis negative))
+    (Symptom (name antiHBc) (diagnosis negative))
     =>
-    (printout t "Hasil Prediksi = Healthy, not vaccinated, or suspicious" crlf)
+    (printout t "Hasil Prediksi = Healthy, Not Vaccinated, or Suspicious" crlf)
     (assert (certain))
 )
 
