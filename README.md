@@ -1,2 +1,2 @@
 # hepatitis-b-prediction
-Hepatitis B Prediction using expert system built using CLIPS Language
+Hepatitis B Prediction expert system built using CLIPS Language
