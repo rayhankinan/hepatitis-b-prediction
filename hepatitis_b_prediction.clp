@@ -10,6 +10,14 @@
     )
 )
 
+(deftemplate Diagnose
+    (slot name
+        (type SYMBOL)
+        (allowed-values uncertain acute chronic BplusD cured vaccinated unclear healthy)
+        (default uncertain)
+    )
+)
+
 (deffacts InitialSymptoms
     (Symptom (name HBsAg))
     (Symptom (name antiHDV))
@@ -107,8 +115,7 @@
     (Symptom (name antiHBs) (diagnosis negative))
     (Symptom (name IgMantiHBc) (diagnosis positive))
     =>
-    (printout t "Hasil Prediksi = Acute Infection" crlf)
-    (assert (certain))
+    (assert (Diagnose (name acute)))
 )
 
 (defrule IsChronicInfection
@@ -118,16 +125,14 @@
     (Symptom (name antiHBs) (diagnosis negative))
     (Symptom (name IgMantiHBc) (diagnosis negative))
     =>
-    (printout t "Hasil Prediksi = Chronic Infection" crlf)
-    (assert (certain))
+    (assert (Diagnose (name chronic)))
 )
 
 (defrule IsHepatitisBPlusD
     (Symptom (name HBsAg) (diagnosis positive))
     (Symptom (name antiHDV) (diagnosis positive))
     =>
-    (printout t "Hasil Prediksi = Hepatitis B + D" crlf)
-    (assert (certain))
+    (assert (Diagnose (name BplusD)))
 )
 
 (defrule IsCured
@@ -135,8 +140,7 @@
     (Symptom (name antiHBs) (diagnosis positive))
     (Symptom (name antiHBc) (diagnosis positive))
     =>
-    (printout t "Hasil Prediksi = Cured" crlf)
-    (assert (certain))
+    (assert (Diagnose (name cured)))
 )
 
 (defrule IsVaccinated
@@ -144,8 +148,7 @@
     (Symptom (name antiHBs) (diagnosis positive))
     (Symptom (name antiHBc) (diagnosis negative))
     =>
-    (printout t "Hasil Prediksi = Vaccinated" crlf)
-    (assert (certain))
+    (assert (Diagnose (name vaccinated)))
 )
 
 (defrule IsUnclear
@@ -153,8 +156,7 @@
     (Symptom (name antiHBs) (diagnosis negative))
     (Symptom (name antiHBc) (diagnosis positive))
     =>
-    (printout t "Hasil Prediksi = Unclear (Possible Resolved)" crlf)
-    (assert (certain))
+    (assert (Diagnose (name unclear)))
 )
 
 (defrule IsHealthy
@@ -162,13 +164,60 @@
     (Symptom (name antiHBs) (diagnosis negative))
     (Symptom (name antiHBc) (diagnosis negative))
     =>
-    (printout t "Hasil Prediksi = Healthy, Not Vaccinated, or Suspicious" crlf)
-    (assert (certain))
+    (assert (Diagnose (name healthy)))
 )
 
 (defrule IsUncertain
     (declare (salience -1))
-    (not (certain))
+    (not (Diagnose (name ?)))
+    =>
+    (assert (Diagnose (name uncertain)))
+)
+
+(defrule DisplayAcuteInfection
+    (Diagnose (name acute))
+    =>
+    (printout t "Hasil Prediksi = Acute Infection" crlf)
+)
+
+(defrule DisplayChronicInfection
+    (Diagnose (name chronic))
+    =>
+    (printout t "Hasil Prediksi = Chronic Infection" crlf)
+)
+
+(defrule DisplayHepatitisBPlusD
+    (Diagnose (name BplusD))
+    =>
+    (printout t "Hasil Prediksi = Hepatitis B+D" crlf)
+)
+
+(defrule DisplayCured
+    (Diagnose (name cured))
+    =>
+    (printout t "Hasil Prediksi = Cured" crlf)
+)
+
+(defrule DisplayVaccinated
+    (Diagnose (name vaccinated))
+    =>
+    (printout t "Hasil Prediksi = Vaccinated" crlf)
+)
+
+(defrule DisplayUnclear
+    (Diagnose (name unclear))
+    =>
+    (printout t "Hasil Prediksi = Unclear (Possible Resolved)" crlf)
+)
+
+(defrule DisplayHealthy
+    (Diagnose (name healthy))
+    =>
+    (printout t "Hasil Prediksi = Healthy, Not Vaccinated, or Suspicious" crlf)
+)
+
+(defrule DisplayUncertain
+    (Diagnose (name uncertain))
     =>
     (printout t "Hasil Prediksi = Uncertain Configuration" crlf)
 )
