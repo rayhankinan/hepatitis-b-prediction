@@ -1,23 +1,3 @@
-(deffunction ProposeQuestion (?question)
-    (printout t ?question)
-    (bind ?answer (read))
-    (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
-
-    (while (not (or (eq ?answer positive) (eq ?answer negative))) do
-        (printout t ?question)
-        (bind ?answer (read))
-        (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
-    )
-
-    ?answer
-)
-
-(deffunction PositiveOrNegative (?question)
-    (bind ?response (ProposeQuestion ?question))
-
-    ?response
-)
-
 (deftemplate Symptom
     (slot name
         (type SYMBOL)
@@ -36,6 +16,26 @@
     (Symptom (name antiHBc))
     (Symptom (name antiHBs))
     (Symptom (name IgMantiHBc))
+)
+
+(deffunction ProposeQuestion (?question)
+    (printout t ?question)
+    (bind ?answer (read))
+    (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
+
+    (while (not (or (eq ?answer positive) (eq ?answer negative))) do
+        (printout t ?question)
+        (bind ?answer (read))
+        (if (lexemep ?answer) then (bind ?answer (lowcase ?answer)))
+    )
+
+    ?answer
+)
+
+(deffunction PositiveOrNegative (?question)
+    (bind ?response (ProposeQuestion ?question))
+
+    ?response
 )
 
 (defrule GetHBsAg
