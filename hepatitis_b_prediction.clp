@@ -40,16 +40,10 @@
     ?answer
 )
 
-(deffunction PositiveOrNegative (?question)
-    (bind ?response (ProposeQuestion ?question))
-
-    ?response
-)
-
 (defrule GetHBsAg
     (Symptom (name HBsAg) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "HBsAg? [positive/negative] "))
+    (bind ?response (ProposeQuestion "HBsAg? [positive/negative] "))
     (assert (Symptom (name HBsAg) (diagnosis ?response)))
 )
 
@@ -57,7 +51,7 @@
     (Symptom (name HBsAg) (diagnosis positive))
     (Symptom (name antiHDV) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "anti-HDV? [positive/negative] "))
+    (bind ?response (ProposeQuestion "anti-HDV? [positive/negative] "))
     (assert (Symptom (name antiHDV) (diagnosis ?response)))
 )
 
@@ -66,7 +60,7 @@
     (Symptom (name antiHDV) (diagnosis negative))
     (Symptom (name antiHBc) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
+    (bind ?response (ProposeQuestion "anti-HBc? [positive/negative] "))
     (assert (Symptom (name antiHBc) (diagnosis ?response)))
 )
 
@@ -76,7 +70,7 @@
     (Symptom (name antiHBc) (diagnosis positive))
     (Symptom (name antiHBs) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
+    (bind ?response (ProposeQuestion "anti-HBs? [positive/negative] "))
     (assert (Symptom (name antiHBs) (diagnosis ?response)))
 )
 
@@ -87,7 +81,7 @@
     (Symptom (name antiHBs) (diagnosis negative))
     (Symptom (name IgMantiHBc) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "IgM anti-HBc? [positive/negative] "))
+    (bind ?response (ProposeQuestion "IgM anti-HBc? [positive/negative] "))
     (assert (Symptom (name IgMantiHBc) (diagnosis ?response)))
 )
 
@@ -95,7 +89,7 @@
     (Symptom (name HBsAg) (diagnosis negative))
     (Symptom (name antiHBs) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "anti-HBs? [positive/negative] "))
+    (bind ?response (ProposeQuestion "anti-HBs? [positive/negative] "))
     (assert (Symptom (name antiHBs) (diagnosis ?response)))
 )
 
@@ -104,7 +98,7 @@
     (or (Symptom (name antiHBs) (diagnosis negative)) (Symptom (name antiHBs) (diagnosis positive)))
     (Symptom (name antiHBc) (diagnosis undiagnosed))
     =>
-    (bind ?response (PositiveOrNegative "anti-HBc? [positive/negative] "))
+    (bind ?response (ProposeQuestion "anti-HBc? [positive/negative] "))
     (assert (Symptom (name antiHBc) (diagnosis ?response)))
 )
 
